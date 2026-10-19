@@ -24,17 +24,30 @@ jobs:
           async: true
 
       
+      
       - name: Simulate stolen credential use
         shell: bash
         run: |
-          echo "Starting controlled canary detection test"
+          echo "Checking canary credential availability"
 
-          AWS_ACCESS_KEY_ID="$__AWS__ACCESS_KEY_ID" \
-          AWS_SECRET_ACCESS_KEY="$__AWS__SECRET_ACCESS_KEY" \
-          AWS_SESSION_TOKEN="$__AWS__SESSION_TOKEN" \
-          AWS_DEFAULT_REGION="us-east-1" \
-          aws sts get-caller-identity \
-            --output json > /dev/null 2>&1 || true
+          if [[ -z "${__AWS__ACCESS_KEY_ID:-}" ||
+                -z "${__AWS__SECRET_ACCESS_KEY:-}" ]]; then
+            echo "ERROR: Canary credentials not available"
+            exit 1
+          fi
 
-          echo "AWS API test completed"
+          echo "Canary credentials present"
+          echo "Attempting AWS STS request"
+
+          if AWS_ACCESS_KEY_ID="$__AWS__ACCESS_KEY_ID" \
+             AWS_SECRET_ACCESS_KEY="$__AWS__SECRET_ACCESS_KEY" \
+             AWS_SESSION_TOKEN="${__AWS__SESSION_TOKEN:-}" \
+             AWS_DEFAULT_REGION="us-east-1" \
+             aws sts get-caller-identity > /dev/null 2>&1; then
+            echo "AWS STS request succeeded"
+          else
+            echo "AWS STS request failed"
+            exit 1
+          fi
+
 
