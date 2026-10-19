@@ -23,7 +23,18 @@ jobs:
           profile-region: us-east-1
           async: true
 
-      - name: Run security demo
+      
+      - name: Simulate stolen credential use
+        shell: bash
         run: |
-          echo "Tracebit security demo started"
-          echo "Canary setup step completed"
+          echo "Starting controlled canary detection test"
+
+          AWS_ACCESS_KEY_ID="$__AWS__ACCESS_KEY_ID" \
+          AWS_SECRET_ACCESS_KEY="$__AWS__SECRET_ACCESS_KEY" \
+          AWS_SESSION_TOKEN="$__AWS__SESSION_TOKEN" \
+          AWS_DEFAULT_REGION="us-east-1" \
+          aws sts get-caller-identity \
+            --output json > /dev/null 2>&1 || true
+
+          echo "AWS API test completed"
+
