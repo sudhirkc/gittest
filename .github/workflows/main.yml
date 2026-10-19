@@ -1,0 +1,22 @@
+
+name: Tracebit Security Demo
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-demo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run security demo
+        run: |
+          echo "Starting Tracebit security demo"
+          echo "GitHub Actions runner is operational"
+          echo "Ready for canary deployment"
